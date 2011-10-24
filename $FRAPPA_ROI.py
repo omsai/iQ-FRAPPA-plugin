@@ -11,8 +11,7 @@ Output:
 Written by Pariksheet Nanda <p.nanda@andor.com> Sep 2011
 
 Change Log:
-- imDuplicate always duplicate a new image incrementing the output name
-  instead of reusing an existing name (v2)
+- imDuplicate increments the output name instead of reusing an existing name
 '''
 
 # Magic Numbers
@@ -28,10 +27,12 @@ import re
 import numpy as nd
 import iqtools, imagedisk
 import imp
-##from formlayout import fedit
 
 
 def selectImage(imdsk):
+  '''
+  User input of dataset to process
+  '''
   try:
     im = iqtools.dialogs.getDataset(imdsk)
   except ValueError:
@@ -94,7 +95,7 @@ def getROIs(im4d,
       print 'WARNING: No [Event Markers] found in file'
       return {}
   
-##  print 'DEBUG: raw_event_markers:', raw_event_markers
+  print 'DEBUG: raw_event_markers:', raw_event_markers
   
   # Separate markers into list type
   separators = ['\n\n', '\n\r\n']
@@ -124,7 +125,7 @@ def getROIs(im4d,
       raise
     try:
       result = list(coordinate_set.groups())
-##      print 'Search result for coordinate_pattern:', result
+      print 'Search result for coordinate_pattern:', result
       values += [map(int, result)] # convert str to int for each list item
     except AttributeError:
       print 'WARNING: No regex result'
@@ -135,28 +136,13 @@ def getROIs(im4d,
   print 'Number of event_list:', len(event_list)
   print 'Number of keys:', len(keys)
   print 'Number of values:', len(values)
-
-##  if len(values) < len(keys):
-##    print 'WARNING: event values fewer than specified keys'
-##    print 'DEBUG: marker indices of event_list',
-##    marker_pattern= re.compile(r'''
-##    \D*         # Ignore 'Marker '
-##    (\d*)       # marker index
-##    ''', re.VERBOSE)
-##    for event in event_list:
-##      try:
-##        marker = marker_pattern.search(event)
-##        print marker.groups()
-##      except AttributeError:
-##        print 'WARNING: No regex result'
-##        print 'DEBUG: event with no result:', repr(event)
   
   return dict(zip(keys, values))
 
 
 def selectNumberWithRange(title, message):
   '''
-  Enter FRAPPA frame numbers in the form 1,2,3-5
+  User input of FRAPPA frame numbers in the form 1,2,3-5
   '''
   frame_string = iqtools.dialogs.getInput('', message, title)
   
