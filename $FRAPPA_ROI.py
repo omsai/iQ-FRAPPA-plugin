@@ -16,6 +16,7 @@ Change Log:
 
 # Magic Numbers
 DEMO_MODE = True # read metadata text file only; images not available
+DEBUG = False
 ROI_LINE_THICKNESS = 2 # Thickness of 0 will fill the ROI completely
 ROI_FILL_VALUE = 16000
 FILE_FOR_ROIs = True
@@ -92,7 +93,8 @@ def getROIs(im4d,
       print 'WARNING: No [Event Markers] found in file'
       return {}
   
-  print 'DEBUG: raw_event_markers:', raw_event_markers
+  if DEBUG:
+    print 'DEBUG: raw_event_markers:', raw_event_markers
   
   # Separate markers into list type
   separators = ['\n\n', '\n\r\n']
@@ -125,8 +127,7 @@ def getROIs(im4d,
       print 'Search result for coordinate_pattern:', result
       values += [map(int, result)] # convert str to int for each list item
     except AttributeError:
-      print 'WARNING: No regex result'
-      print 'DEBUG: event with no result:', repr(event)
+      print 'WARNING: No regex result for event:', repr(event)
   
   keys = frames
   
@@ -147,17 +148,21 @@ def selectNumberWithRange(title, message):
   print 'Frame string from user:', repr(frame_string)
   
   re.sub(frame_string, ' ', '')
-  print 'Stripped space characters:', repr(frame_string)
+  if DEBUG:
+    print 'Stripped space characters:', repr(frame_string)
   
   frame_list = frame_string.split(',')
-  print 'Split into frames and ranges:', repr(frame_list)
+  if DEBUG:
+    print 'Split into frames and ranges:', repr(frame_list)
   
   frames = []
   for frame_set in frame_list:
     try:
-      print 'DEBUG: Before hyphen split:', repr(frame_set)
+      if DEBUG:
+        print 'DEBUG: Before hyphen split:', repr(frame_set)
       frame_set = frame_set.split('-')
-      print 'DEBUG: After hyphen split:', repr(frame_set)
+      if DEBUG:
+        print 'DEBUG: After hyphen split:', repr(frame_set)
       if len(frame_set) > 1:
         [begin, end] = frame_set
         begin = int(begin)
@@ -226,6 +231,7 @@ if __name__ == '__main__':
   else:
     print 'WARNING: Demo mode enabled.'
     print '         Only text file of metadata will be read.'
+    print '         No image set will be read or created.'
     im = None
   
   if im is not None or DEMO_MODE is True:
@@ -234,7 +240,8 @@ if __name__ == '__main__':
                                          'eg: 1-5,9-11,15,17'
                                         )
     print '%d event frames specified by user' % len(EVENT_FRAMES)
-    print 'EVENT_FRAMES:', EVENT_FRAMES
+    if DEBUG:
+      print 'DEBUG: EVENT_FRAMES:', EVENT_FRAMES
     file = None
     
     if FILE_FOR_ROIs:
@@ -249,8 +256,9 @@ if __name__ == '__main__':
     else:
       print 'ROI file selection: ', repr(file)
       rois = getROIs(im, EVENT_FRAMES, file)
-      print '%d ROIs found' % len(rois)
-      print 'ROIs:', rois
+      print '%d ROIs specified by user' % len(rois)
+      if DEBUG:
+        print 'ROIs:', rois
       if len(rois) < len(EVENT_FRAMES):
         print 'WARNING: Fewer ROIs found than expected EVENT_FRAMES'
       if not DEMO_MODE:
