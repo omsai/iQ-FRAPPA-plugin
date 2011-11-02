@@ -1,7 +1,7 @@
 #SHELL
 '''
 Extracts rectangular FRAPPA ROIs from image metadata, duplicates the original
-image and draws bitmap "ROIs" for each FRAPPA event.
+image and draws bitmap ROIs on duplicate image for each FRAPPA event.
 
 Input:
   Name of image in ImageList, ordered list of frame numbers of event markers
@@ -15,6 +15,7 @@ Change Log:
 '''
 
 # Magic Numbers
+DEMO_MODE = True # read metadata text file only; images not available
 ROI_LINE_THICKNESS = 2 # Thickness of 0 will fill the ROI completely
 ROI_FILL_VALUE = 16000
 FILE_FOR_ROIs = True
@@ -37,10 +38,6 @@ def selectImage(imdsk):
     im = iqtools.dialogs.getDataset(imdsk)
   except ValueError:
     raise Exception, 'ImageDisk empty, nothing to export.'
-  
-  imp.reload(iqtools) # Kludge: if you call getDataset again the font
-                      # will be tiny and clicking tiny 'cancel' will
-                      # crash the IDE
   
   if im == None:
     print 'No image selected.'
@@ -221,10 +218,17 @@ def drawROIs(im4d,
 
 
 if __name__ == '__main__':
-  id = imagedisk.iQImageDisk()
-  im = selectImage(id) # Select FRAPPA dataset
-  print 'Image:', im
-  if im is not None:
+  
+  if not DEMO_MODE:
+    id = imagedisk.iQImageDisk()
+    im = selectImage(id) # Select FRAPPA dataset
+    print 'Image:', im
+  else:
+    print 'WARNING: Demo mode enabled.'
+    print '         Only text file of metadata will be read.'
+    im = None
+  
+  if im is not None or DEMO_MODE is True:
     EVENT_FRAMES = selectNumberWithRange('Event numbers',
                                          'Type frame numbers of FRAPPA events\n'+
                                          'eg: 1-5,9-11,15,17'
@@ -232,22 +236,31 @@ if __name__ == '__main__':
     print '%d event frames specified by user' % len(EVENT_FRAMES)
     print 'EVENT_FRAMES:', EVENT_FRAMES
     file = None
+    
     if FILE_FOR_ROIs:
       file = iqtools.dialogs.getFile('Choose iQ metadata file or click '+\
                                       'Cancel to use image metadata',
                                      'iQ Metadata (*.txt)|*.txt')
     if file == u'': # You get this if you click cancel to the dialogue
       file = None
-    print 'ROI file selection: ', repr(file)
-    rois = getROIs(im, EVENT_FRAMES, file)
-    print '%d ROIs found' % len(rois)
-    print 'ROIs:', rois
-    if len(rois) < len(EVENT_FRAMES):
-      print 'WARNING: Fewer ROIs found than expected EVENT_FRAMES'
-    im2 = imDuplicate(im, id) # Duplicate image with safe name
-    drawROIs(im2, rois)
+    
+    if file is None and DEMO_MODE is True:
+      print 'ERROR: No file selected.  Exiting demo mode.'
+    else:
+      print 'ROI file selection: ', repr(file)
+      rois = getROIs(im, EVENT_FRAMES, file)
+      print '%d ROIs found' % len(rois)
+      print 'ROIs:', rois
+      if len(rois) < len(EVENT_FRAMES):
+        print 'WARNING: Fewer ROIs found than expected EVENT_FRAMES'
+      if not DEMO_MODE:
+        im2 = imDuplicate(im, id) # Duplicate image with safe name
+        drawROIs(im2, rois)
   
   print 'Finished script'
-  iqtools.dialogs.msg('Close the main IDE window if you want to '+\
-                       're-run this script',
-                       'Finished script')
+  
+  # Kludge: selectImage only can be run once in a Python IDE session
+  if not DEMO_MODE:
+    iqtools.dialogs.msg('Close the main IDE window if you want to '+\
+                         're-run this script',
+                         'Finished script')
