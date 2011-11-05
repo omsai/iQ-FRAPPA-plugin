@@ -4,19 +4,18 @@ Extracts rectangular FRAPPA ROIs from image metadata, duplicates the original
 image and draws bitmap ROIs on duplicate image for each FRAPPA event.
 
 Input:
-  Name of image in ImageList, ordered list of frame numbers of event markers
+  Name of image in ImageList,
+  Ordered list of frame numbers of event markers
 Output:
   New image in ImageList
 
 Written by Pariksheet Nanda <p.nanda@andor.com> Sep 2011
-
-Change Log:
-- imDuplicate increments the output name instead of reusing an existing name
 '''
 
-# Magic Numbers
-DEMO_MODE = True # read metadata text file only; images not available
+DEMO_MODE = False # read metadata text file only; images not available
 DEBUG = False
+
+# Magic Numbers
 ROI_LINE_THICKNESS = 2 # Thickness of 0 will fill the ROI completely
 ROI_FILL_VALUE = 16000
 FILE_FOR_ROIs = True
@@ -105,29 +104,47 @@ def getROIs(im4d,
   print 'Events found:', len(event_list)
   
   coordinate_pattern= re.compile(r'''
-  \:\D*       # assume only 1 colon in event
-  (\d*)       # x1
+  \:\D*       # colon precedes each coordinate match in event
+  (\d{1,4})   # x1
   \D*         # non-digits
-  (\d*)       # y1
+  (\d{1,4})   # y1
   \D*         # non-digits
-  (\d*)       # x2
+  (\d{1,4})   # x2
   \D*         # non-digits
-  (\d*)       # y2
+  (\d{1,4})   # y2
   ''', re.VERBOSE)
   
   values = []
   for event in event_list:
-    try:
-      coordinate_set = coordinate_pattern.search(event)
-    except:
-      print 'ERROR: Regex failed'
-      raise
-    try:
-      result = list(coordinate_set.groups())
-      print 'Search result for coordinate_pattern:', result
-      values += [map(int, result)] # convert str to int for each list item
-    except AttributeError:
-      print 'WARNING: No regex result for event:', repr(event)
+    if DEBUG:
+      print 'DEBUG: Attempting Regex on event:', repr(event)
+    
+    lines = event.splitlines()
+    roi_found = False
+    roi_frame = event_list.index(event) + 1
+    
+    for line in lines:
+      try:
+        coordinate_set = coordinate_pattern.search(line)
+      except:
+        print 'ERROR: Regex failed'
+        raise
+      
+      try:
+        result = list(coordinate_set.groups())
+        if DEBUG:
+          print 'DEBUG: Regex groups() result: ', result
+        if roi_found:
+          values[-1] += [[map(int, result)]] # convert coordinates str to int
+        else:
+          values += [[map(int, result)]] # convert coordinates str to int
+          roi_found = True
+      except AttributeError:
+        if DEBUG:
+          print 'DEBUG: No regex result for line:', repr(line)
+        
+    print 'Event %d coordinates:' \
+            % (roi_frame), values[-1]
   
   keys = frames
   
@@ -173,7 +190,9 @@ def selectNumberWithRange(title, message):
         frames += frame_set
     except ValueError:
       raise
-  print 'Parsed frames and ranges into numeric list:', frames
+  
+  if DEBUG:
+    print 'Parsed frames and ranges into numeric list:', frames
   
   return frames
 
@@ -208,18 +227,19 @@ def drawROIs(im4d,
   shape = im4d.shape
   print 'Drawing FRAPPA ROIs:'
   
-  for frame, [x1, y1, x2, y2] in roi_dictionary.items():
+  for frame, rois in roi_dictionary.items():
+    for [x1, y1, x2, y2] in rois:
     # Process frames one at a time
-    print '- Frame %d with rectangle (%d,%d) (%d,%d)' % \
-           (frame, x1, y1, x2, y2)
-    orig = im4d[frame, 0,
-                x1+ROI_LINE_THICKNESS:x2-ROI_LINE_THICKNESS,
-                y1+ROI_LINE_THICKNESS:y2-ROI_LINE_THICKNESS]
-    im4d[frame, shape[CHANNEL_DIM]-1, x1:x2, y1:y2] = ROI_FILL_VALUE
-    if ROI_LINE_THICKNESS > 0:
-      im4d[frame, 0,
-           x1+ROI_LINE_THICKNESS:x2-ROI_LINE_THICKNESS,
-           y1+ROI_LINE_THICKNESS:y2-ROI_LINE_THICKNESS] = orig
+      print '- Frame %d with rectangle (%d,%d) (%d,%d)' % \
+             (frame, x1, y1, x2, y2)
+      orig = im4d[frame, 0,
+                  x1+ROI_LINE_THICKNESS:x2-ROI_LINE_THICKNESS,
+                  y1+ROI_LINE_THICKNESS:y2-ROI_LINE_THICKNESS]
+      im4d[frame, shape[CHANNEL_DIM]-1, x1:x2, y1:y2] = ROI_FILL_VALUE
+      if ROI_LINE_THICKNESS > 0:
+        im4d[frame, 0,
+             x1+ROI_LINE_THICKNESS:x2-ROI_LINE_THICKNESS,
+             y1+ROI_LINE_THICKNESS:y2-ROI_LINE_THICKNESS] = orig
 
 
 if __name__ == '__main__':
@@ -256,7 +276,7 @@ if __name__ == '__main__':
     else:
       print 'ROI file selection: ', repr(file)
       rois = getROIs(im, EVENT_FRAMES, file)
-      print '%d ROIs specified by user' % len(rois)
+      print '%d ROIs found in metadata' % len(rois)
       if DEBUG:
         print 'ROIs:', rois
       if len(rois) < len(EVENT_FRAMES):
