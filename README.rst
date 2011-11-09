@@ -1,12 +1,18 @@
 Installation
-------------
-Strictly speaking you can simply right-click on the .py file, save it anywhere,
-and open the file in iQ's Python IDE to run the code.
+============
 
-However, the Python IDE searches a folder specific to make programs visible in
-its plugins menu -
+As a Plugin
+-----------
+The Python IDE searches a specific folder to make programs visible in its 
+plugins menu -
 
     C:/Program Files/Andor Bioimaging/Plugins/
 
-To this directory, you can download the .py file or (better) clone the Git 
-repository there so that the script is easily accessible.
+Download the .py file to this directory, by right-clicking on the .py file in 
+Github and save it from your web browser.  Now when you restart / start the 
+Python IDE in iQ you will always see this program in the plugins menu.
+
+
+Updating
+--------
+Register as a Github user to watch the project for updates.
