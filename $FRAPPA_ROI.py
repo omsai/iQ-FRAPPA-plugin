@@ -135,7 +135,7 @@ def getROIs(im4d,
         if DEBUG:
           print 'DEBUG: Regex groups() result: ', result
         if roi_found:
-          values[-1] += [[map(int, result)]] # convert coordinates str to int
+          values[-1] += [map(int, result)] # convert coordinates str to int
         else:
           values += [[map(int, result)]] # convert coordinates str to int
           roi_found = True
