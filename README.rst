@@ -15,4 +15,6 @@ Python IDE in iQ you will always see this program in the plugins menu.
 
 Updating
 --------
-Register as a Github user to watch the project for updates.
+Github does not provide e-mail notification for project updates.  You can 
+simply bookmark this page or register as a Github user to watch this project 
+for pull requests.
