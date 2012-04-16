@@ -1,20 +1,21 @@
-Installation
-============
+Plugin Installation
+===================
 
-As a Plugin
------------
-The Python IDE searches a specific folder to make programs visible in its 
-plugins menu -
+#. The Python IDE searches a specific folder to make programs visible in its 
+   plugins menu.
 
-    C:/Program Files/Andor Bioimaging/Plugins/
+#. Developers can clone the Git respository to that directory.
 
-Download the .py file to this directory, by right-clicking on the .py file in 
-Github and save it from your web browser.  Now when you restart / start the 
-Python IDE in iQ you will always see this program in the plugins menu.
+   Users can download the zip file by clicking on "Tags" on the top right and 
+   select the applicable release.
 
+#. Now when you restart / start the Python IDE you will always see this 
+   program in the plugins menu.
 
-Updating
---------
-Github does not provide e-mail notification for project updates.  You can 
-simply bookmark this page or register as a Github user to watch this project 
-for pull requests.
+Plugins directory
+-----------------
+``C:/Program Files/Andor Bioimaging/PythonEngine/Plugins/``
+
+It was different in iQ 2.4.4 and earlier:
+
+``C:/Program Files/Andor Bioimaging/Plugins/``
