@@ -235,7 +235,7 @@ def drawROIs(im4d,
       orig = im4d[frame, 0,
                   x1+ROI_LINE_THICKNESS:x2-ROI_LINE_THICKNESS,
                   y1+ROI_LINE_THICKNESS:y2-ROI_LINE_THICKNESS]
-      im4d[frame, shape[CHANNEL_DIM]-1, x1:x2, y1:y2] = ROI_FILL_VALUE
+      im4d[frame, int(shape[CHANNEL_DIM]-1), x1:x2, y1:y2] = ROI_FILL_VALUE
       if ROI_LINE_THICKNESS > 0:
         im4d[frame, 0,
              x1+ROI_LINE_THICKNESS:x2-ROI_LINE_THICKNESS,
