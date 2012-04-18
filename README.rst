@@ -1,8 +1,8 @@
 Plugin Installation
 ===================
 
-#. The Python IDE searches a specific folder to make programs visible in its 
-   plugins menu.
+The Python IDE searches a specific `plugins directory`_ to make programs visible in its 
+plugins menu.
 
 #. Developers can clone the Git respository to that directory.
 
@@ -13,7 +13,7 @@ Plugin Installation
    program in the plugins menu.
 
 Plugins directory
------------------
+=================
 ``C:/Program Files/Andor Bioimaging/PythonEngine/Plugins/``
 
 It was different in iQ 2.4.4 and earlier:
