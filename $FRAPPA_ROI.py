@@ -57,9 +57,9 @@ def selectImage(imdsk):
 	return im
 
 
-def getROIs(im4d,
-			frames,
-			file=None):
+def getROIs(	im4d,
+		frames,
+                file=None):
 	'''
 	Return FRAPPA ROIs from event markers in image metadata.
 
@@ -198,9 +198,9 @@ def selectNumberWithRange(title, message):
 
 
 def imDuplicate(im,
-				imdsk,
-				title_extension='_ROI_same_channel',
-				channel_label='ROI'):
+		imdsk,
+		title_extension='_ROI_same_channel',
+		channel_label='ROI'):
 	'''
 	Duplicates image in ImageList creating a unique name in iQ's style of
 	appending an integer increment to existing names
@@ -219,8 +219,8 @@ def imDuplicate(im,
 	return imroi
 
 
-def drawROIs(im4d,
-			roi_dictionary):
+def drawROIs(	im4d,
+		roi_dictionary):
 	'''
 	Use ROI dictionary to fill rectangles into ROI channel of dataset
 	'''
@@ -232,12 +232,14 @@ def drawROIs(im4d,
 			# Process frames one at a time
 			print '- Frame %d with rectangle (%d,%d) (%d,%d)' % \
 					(frame, x1, y1, x2, y2)
-			orig = im4d[frame, 0,
-						x1+ROI_LINE_THICKNESS:x2-ROI_LINE_THICKNESS,
-						y1+ROI_LINE_THICKNESS:y2-ROI_LINE_THICKNESS]
+			orig = im4d[	frame,
+					0,
+					x1+ROI_LINE_THICKNESS:x2-ROI_LINE_THICKNESS,
+					y1+ROI_LINE_THICKNESS:y2-ROI_LINE_THICKNESS]
 			im4d[frame, int(shape[CHANNEL_DIM]-1), x1:x2, y1:y2] = ROI_FILL_VALUE
 			if ROI_LINE_THICKNESS > 0:
-				im4d[frame, 0,
+				im4d[	frame,
+					0,
 					x1+ROI_LINE_THICKNESS:x2-ROI_LINE_THICKNESS,
 					y1+ROI_LINE_THICKNESS:y2-ROI_LINE_THICKNESS] = orig
 
@@ -255,19 +257,20 @@ if __name__ == '__main__':
 		im = None
 
 	if im is not None or DEMO_MODE is True:
-		EVENT_FRAMES = selectNumberWithRange('Event numbers',
-											'Type frame numbers of FRAPPA events\n'+
-											'eg: 1-5,9-11,15,17'
-											)
+		EVENT_FRAMES = selectNumberWithRange(
+			'Event numbers',
+			'Type frame numbers of FRAPPA events\n'+
+			'eg: 1-5,9-11,15,17')
 		print '%d event frames specified by user' % len(EVENT_FRAMES)
 		if DEBUG:
 			print 'DEBUG: EVENT_FRAMES:', EVENT_FRAMES
 		file = None
 		
 		if FILE_FOR_ROIs:
-			file = iqtools.dialogs.getFile('Choose iQ metadata file or click '+\
-											'Cancel to use image metadata',
-											'iQ Metadata (*.txt)|*.txt')
+			file = iqtools.dialogs.getFile(
+				'Choose iQ metadata file or click '+\
+				'Cancel to use image metadata',
+				'iQ Metadata (*.txt)|*.txt')
 		if file == u'': # You get this if you click cancel to the dialogue
 			file = None
 		
@@ -289,6 +292,7 @@ if __name__ == '__main__':
 
 	# Kludge: selectImage only can be run once in a Python IDE session
 	if not DEMO_MODE:
-		iqtools.dialogs.msg('Close the main IDE window if you want to '+\
-							're-run this script',
-							'Finished script')
+		iqtools.dialogs.msg(
+			'Close the main IDE window if you want to '+\
+			're-run this script',
+			'Finished script')
