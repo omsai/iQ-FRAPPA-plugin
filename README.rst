@@ -11,22 +11,17 @@ onto the image by setting the pixel intensity to a high value.
 .. figure:: http://i.imgur.com/xd9mm.gif
    :alt: bleaching
 
-Plugins directory
-=================
-If you are using iQ 2.5.0 and above:
-
-``C:/Program Files/Andor Bioimaging/PythonEngine/Plugins/``
-
-For iQ 2.4.4 and earlier:
-
-``C:/Program Files/Andor Bioimaging/Plugins/``
-
 Installation
-============
-#. [Download](https://github.com/omsai/iQ-FRAPPA-plugin/tags)
-   a release and unzip in the plugins directory.
+------------
+#. `Download a release <https://github.com/omsai/iQ-FRAPPA-plugin/tags>`_
+   and unzip in the plugins directory.  Developers may instead want to clone this
+   Git respository into the plugins directory.
 
-   Developers may instead want to clone this Git respository into the plugins directory.
+#. Plugins directory for iQ 2.5.0 and above:
+   ``C:/Program Files/Andor Bioimaging/PythonEngine/Plugins/``
+
+   For iQ 2.4.4 and earlier:
+   ``C:/Program Files/Andor Bioimaging/Plugins/``
 
 #. Now when you restart / start the Python IDE you will always see this 
    program in the plugins menu.
