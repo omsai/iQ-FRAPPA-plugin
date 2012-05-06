@@ -43,8 +43,8 @@ def drawEventROIs(im, intensity=16000, line_width=2, channel_dim=1):
 
 if __name__ == "__main__":
     app.QApplication(sys.argv)
-    imageList = ImageList()
-    imageList.show()
+    imageListWindow = ImageListWindow()
+    imageListWindow.show()
     im = iQImage(iQImageDisk(), app.exec_())
 
     im2 = im.duplicate(im.title + '_drawEventROIs')

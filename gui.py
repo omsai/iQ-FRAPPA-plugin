@@ -2,35 +2,38 @@
 Qt Form for selecting iQImage
 """
 
-#import imagedisk
 import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 
-class ImageList(QDialog):
+class ImageListWindow(QDialog):
 
     def __init__(self, parent=None):
-        super(ImageList, self).__init__(parent)
+        super(ImageListWindow, self).__init__(parent)
 
-        #id = imagedisk.iQImageDisk()
-        names = ['frappa pa405',
-                 'micropoint 365',
-                 'mosaic gfp']
+        try:
+            from imagedisk import iQImageDisk
+            id = iQImageDisk()
+            names = id.titles()
+        except ImportError:
+            names = ['frappa pa405',
+                     'micropoint 365',
+                     'mosaic gfp']
 
         # window title
         self.setWindowTitle("Select iQ Image")
 
         # view widget
         self.listView = QListView()
-        sourceModel = QStandardItemModel(len(names), 1)
+        self.sourceModel = QStandardItemModel(len(names), 1)
         i = 0
         for name in names:
             item = QStandardItem(name)
-            sourceModel.setItem(i, item)
+            self.sourceModel.setItem(i, item)
             i += 1
         self.proxyModel = QSortFilterProxyModel()
-        self.proxyModel.setSourceModel(sourceModel)
+        self.proxyModel.setSourceModel(self.sourceModel)
         self.listView.setModel(self.proxyModel)
 
         # filter widgets
@@ -52,12 +55,18 @@ class ImageList(QDialog):
                      SIGNAL("textChanged(const QString&)"), self.filterList)
 
     def filterList(self):
+        for index in range(self.proxyModel.rowCount()):
+            print self.sourceModel.data(self.proxyModel.index(index, 0))
+
         regExp = QRegExp(self.filterLineEdit.text(),
                                 Qt.CaseInsensitive, QRegExp.Wildcard)
         self.proxyModel.setFilterRegExp(regExp)
 
+    def submit(self):
+        print("clicked!")
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    imageList = ImageList()
-    imageList.show()
+    imageListWindow = ImageListWindow()
+    imageListWindow.show()
     app.exec_()
