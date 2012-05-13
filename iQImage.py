@@ -1,47 +1,91 @@
 """
-Extends iQImage with `getEventROIs` to extract event ROIs from metadata.
-Only works with rectangular ROIs.
+Monkey patches iQImage with `targeted_ROIs` generator which extracts FRAPPA
+event metadata.
+
+>>> id = iQImageDisk()
+>>> im = iQImage(id, 'frap2.tif')
+>>> print im.targeted_ROIs()
+<generator object _targeted_ROIs at 0x01578FD0>
+
+>>> for roi in im.targeted_ROIs():
+... print roi
+{'frame': 5, 'type': 'Rectangle', 'coordinates': [189, 66, 244, 94]}
+{'frame': 4, 'type': 'Rectangle', 'coordinates': [167, 295, 222, 323]}
+{'frame': 3, 'type': 'Rectangle', 'coordinates': [181, 293, 236, 321]}
+{'frame': 2, 'type': 'Rectangle', 'coordinates': [237, 191, 292, 219]}
 """
 
-import re
 from imagedisk import iQImage
+import re
 
 
-class iQImage(iQImage):
+def _targeted_ROIs(self):
+    """
+    ROI metadata from FRAPPA event markers
 
-    def __init__(self, iQImageDisk, title):
-        super(iQImage, self).__init__(iQImageDisk, title)
+    Note:
+    - Events can have multiple ROIs and multiple types of ROIs (rectangle,
+      freehand, polygon, straight line, multipoint line, freehand line)
+    - Presently only a single rectangle is extracted
 
+    @rtype: dictionary of frame number, ROI type and coordinates
+    """
+    try:
+        event_markers = self.getDetails()[0]['Event Markers']
+    except KeyError: # No [Event Markers] found in image metadata
+        yield []
+    event_lines = event_markers.splitlines()
 
-    def getEventROIs(self):
+    # Traverse list backwards since location line comes after ROI coordinates
+    event_lines.reverse()
+    ROI_types = ['Rectangle']
+    frame = None
+    for event_line in event_lines:
+        # match number preceded by `Time(`
+        match = re.search(r'(?<=Time[(])\d+', event_line)
+        if match is not None:
+            frame = int(match.group())
+            continue
+        elif frame == None:
+            continue
+        
+        # match all x, y number pairs in the form `( x, y)`
+        pattern = re.compile(r'(?<=[(] )\d+(?![)])|(?<=[,] )\d+(?=[)])')
         """
-        Generate ROIs from event markers in image metadata.
-
-        Note:
-        - Events can have multiple ROIs and multiple types of ROIs (rectangle,
-          freehand, polygon, straight line, multipoint line, freehand line)
-        - Presently only a single rectangle coordinates are extracted in the
-          form: [x1, y1, x2, y2]
-
-        @rtype: dictionary of frame number and coordinate list
+        pattern explanation:
+            (?<=[(] )\d+    # match a number preceded with `( ` ...
+            (?![)])         # ... as long as it does not have a `)` after
+            |               # or
+            (?<=[,] )\d+    # match a number preceded with `, ` ...
+            (?=[)])         # ... as long as it has a `)` after
+        could use re.VERBOSE as it doesn't seem to work with the
+        (?...) extension notation
         """
-        try:
-            event_markers = self.getDetails()[0]['Event Markers']
-        except KeyError: # No [Event Markers] found in image metadata
-            return
+        coordinate_string_list = re.findall(pattern, event_line)
+        if coordinate_string_list == []:
+            continue
+        coordinates = map(int, coordinate_string_list)
 
-        # regex pattern to extract ROI coordinates and event frame
-        pattern = re.compile(r'''
-		\:\D*       # colon precedes each coordinate match in event
-		(\d{1,4})   # x1
-		\D*         # non-digits
-		(\d{1,4})   # y1
-		\D*         # non-digits
-		(\d{1,4})   # x2
-		\D*         # non-digits
-		(\d{1,4})   # y2
-		''', re.VERBOSE)
+        type = 'Unknown'
+        for ROI_type in ROI_types:
+            if re.search(ROI_type, event_line):
+                type = ROI_type
+                break
 
-        # TODO: Extract multiple coordinates per event
-        for match in re.finditer(pattern, event_markers):
-            yield [map(int, match)] # convert coordinates str to int
+        yield dict(
+            frame = frame,
+            type = type,
+            coordinates = coordinates
+            )
+
+iQImage.targeted_ROIs = _targeted_ROIs
+
+
+if __name__ == '__main__':
+    from imagedisk import iQImageDisk
+    id = iQImageDisk()
+    im = iQImage(id, 'frap2.tif')
+    print im.targeted_ROIs()
+    
+    for roi in im.targeted_ROIs():
+        print roi
