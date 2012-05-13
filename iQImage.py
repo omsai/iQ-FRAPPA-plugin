@@ -1,6 +1,6 @@
 """
-Monkey patches iQImage with `targeted_ROIs` generator which extracts FRAPPA
-event metadata.
+Monkey patches iQImage with `targeted_ROIs` generator to extract FRAPPA event
+ROI metadata.
 
 >>> id = iQImageDisk()
 >>> im = iQImage(id, 'frap2.tif')
@@ -21,12 +21,7 @@ import re
 
 def _targeted_ROIs(self):
     """
-    ROI metadata from FRAPPA event markers
-
-    Note:
-    - Events can have multiple ROIs and multiple types of ROIs (rectangle,
-      freehand, polygon, straight line, multipoint line, freehand line)
-    - Presently only a single rectangle is extracted
+    ROI metadata from FRAPPA event markers.
 
     @rtype: dictionary of frame number, ROI type and coordinates
     """
@@ -58,7 +53,7 @@ def _targeted_ROIs(self):
             |               # or
             (?<=[,] )\d+    # match a number preceded with `, ` ...
             (?=[)])         # ... as long as it has a `)` after
-        could use re.VERBOSE as it doesn't seem to work with the
+        could not use re.VERBOSE as it doesn't seem to work with the
         (?...) extension notation
         """
         coordinate_string_list = re.findall(pattern, event_line)
