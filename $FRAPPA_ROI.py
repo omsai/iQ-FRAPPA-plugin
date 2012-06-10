@@ -5,7 +5,7 @@ Draws bitmap ROIs from each event onto duplicated image.
 from imagedisk import iQImageDisk
 from iQImage import *
 from PIL import Image, ImageDraw
-from numpy import array
+from numpy import array, zeros
 
 # User editable variables
 intensity = 16000
@@ -29,15 +29,13 @@ from imagedisk import iQImageDisk
 id = iQImageDisk()
 im = iQImage(id, 'frap2.tif') # FIXME: Use GUI to allow user to choose image
 
-"""
-# Make a copy
+# Make a copy of that image
 new_title = im.title + title_postfix
 if id.has_image(new_title): del id[new_title]
 im2 = im.duplicate(new_title)
-"""
 
 # Generate ROI masks using PIL Image
-mask = array(im.shape, dtype=bool)
+mask = zeros(im.shape, dtype=bool)
 x = im.getWidth()
 y = im.getHeight()
 
@@ -49,5 +47,13 @@ for roi in im.targeted_ROIs():
                                          outline=line_width)
     # Convert mask to numpy array
     mask_2d = array(pil_im, dtype=bool)
-    
-    # TODO: append mask_2d into mask using roi['frame'] as Time dimension 
+    # Get dimensions except x and y, so that x and y can be overwritten
+    dimensions = len(im.shape[:-2])
+    # Create index defaulting to zero
+    index = [0] * dimensions
+    # use roi['frame'] as Time dimension 
+    index[im.dimPosition('Time')] = roi['frame']
+    # write mask_2d into mask
+    mask[index] = mask_2d
+
+im2[mask] = intensity
