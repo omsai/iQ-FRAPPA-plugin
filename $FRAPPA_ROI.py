@@ -1,50 +1,2 @@
-#SHELL
-"""
-Draws bitmap ROIs from each event onto duplicated image.
-"""
-
-from imagedisk import iQImageDisk
-from iQImage import *
-from gui import *
-
-
-def drawEventROIs(im, intensity=16000, line_width=2, channel_dim=1):
-    """
-    Inject ROI outline into images
-
-    @param im: pixel intensity of ROI outline
-    @type im: iQImage
-    @param intensity: pixel intensity of ROI outline
-    @type intensity: int
-    @param line_width: width of ROI outline
-    @type line_width: int
-    @param channel_dim: wavelength dimension position in ndarray
-    @type channel_dim: int
-    @rtype: None
-    """
-    if line_width <= 0:
-        return
-
-    for index, rois in im.getEventROIs():
-        # TODO: Draw other ROI shapes besides rectangle
-        for [x1, y1, x2, y2] in rois:
-            # Copy original data before filling
-            orig = im[index, 0,
-                x1 + line_width:x2 - line_width,
-                y1 + line_width:y2 - line_width]
-            # Fill rectangle
-            im[index, int(im.shape[channel_dim] - 1),
-               x1:x2, y1:y2] = intensity
-            # Fill in with original data
-            im[index, 0,
-               x1 + line_width:x2 - line_width,
-               y1 + line_width:y2 - line_width] = orig
-
-
-if __name__ == "__main__":
-    app.QApplication(sys.argv)
-    imageListWindow = ImageListWindow()
-    imageListWindow.show()
-    im = iQImage(iQImageDisk(), app.exec_())
-
-    im2 = im.duplicate(im.title + '_drawEventROIs')
+#SHELL"""Draws bitmap ROIs from each event onto duplicated image."""
+from imagedisk import iQImageDiskfrom iQImage import *from PIL import Image, ImageDrawfrom numpy import array# User editable variablesintensity = 16000line_width = 2# iQImage.shape seems to be the only way to get image width and height# attributes.  Monkey patch with explicit width and height properties, inspired# by ImageJ getWidth and getHeightdef _get_width(self):    return self.shape[-2]def _get_height(self):    return self.shape[-1]iQImage.getWidth = _get_widthiQImage.getHeight = _get_height# Get image from userfrom imagedisk import iQImageDiskid = iQImageDisk()# FIXME: Use GUI to allow user to choose imageim = iQImage(id, 'frap2.tif')# Assemble ROIs using PIL Imagefor roi in im.targeted_ROIs():    x = im.getWidth()    y = im.getHeight()    pil_im = Image.new('L', (x, y), 0)    if roi['type'] == 'Rectangle':        ImageDraw.Draw(pil_im).rectangle(roi['coordinates'],                               # FIXME: outline > 1 does not increase thickness                                         outline=line_width)    from iqtools.mplot import imshow    imshow(pil_im)##im2 = im.duplicate(im.title + '_drawEventROIs')
