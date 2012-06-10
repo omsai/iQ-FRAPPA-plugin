@@ -10,6 +10,7 @@ from numpy import array
 # User editable variables
 intensity = 16000
 line_width = 2
+title_postfix = '_drawEventROIs'
 
 # iQImage.shape seems to be the only way to get image width and height
 # attributes.  Monkey patch with explicit width and height properties, inspired
@@ -26,19 +27,27 @@ iQImage.getHeight = _get_height
 # Get image from user
 from imagedisk import iQImageDisk
 id = iQImageDisk()
-# FIXME: Use GUI to allow user to choose image
-im = iQImage(id, 'frap2.tif')
+im = iQImage(id, 'frap2.tif') # FIXME: Use GUI to allow user to choose image
 
-# Assemble ROIs using PIL Image
+"""
+# Make a copy
+new_title = im.title + title_postfix
+if id.has_image(new_title): del id[new_title]
+im2 = im.duplicate(new_title)
+"""
+
+# Generate ROI masks using PIL Image
+mask = array(im.shape, dtype=bool)
+x = im.getWidth()
+y = im.getHeight()
+
 for roi in im.targeted_ROIs():
-    x = im.getWidth()
-    y = im.getHeight()
     pil_im = Image.new('L', (x, y), 0)
     if roi['type'] == 'Rectangle':
         ImageDraw.Draw(pil_im).rectangle(roi['coordinates'],
                                # FIXME: outline > 1 does not increase thickness
                                          outline=line_width)
-    from iqtools.mplot import imshow
-    imshow(pil_im)
-
-##im2 = im.duplicate(im.title + '_drawEventROIs')
+    # Convert mask to numpy array
+    mask_2d = array(pil_im, dtype=bool)
+    
+    # TODO: append mask_2d into mask using roi['frame'] as Time dimension 
