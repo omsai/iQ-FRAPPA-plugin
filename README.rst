@@ -23,5 +23,10 @@ Installation
    For iQ 2.4.4 and earlier:
    ``C:/Program Files/Andor Bioimaging/Plugins/``
 
+#. (For iQ 2.5.0) The PIL module is broken, so first delete the folder
+   ``C:\iQOpenSource\Python-2.6.6\Lib\site-packages\PIL-1.1.7-py2.6-win32``
+   and install `PIL 1.17 for Python 2.6
+   <http://effbot.org/downloads/PIL-1.1.7.win32-py2.6.exe>`_
+
 #. Now when you restart / start the Python IDE you will always see this 
    program in the plugins menu.
