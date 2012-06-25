@@ -11,6 +11,11 @@ onto the image by setting the pixel intensity to a high value.
 .. figure:: http://i.imgur.com/xd9mm.gif
    :alt: bleaching
 
+This plugin is for presentation purposes.  The
+`FRAP analysis ImageJ plugin <http://imagejdocu.tudor.lu/doku.php?id=plugin:analysis:frap_analysis:start>`_
+reliably guesses the FRAP location without the ROI metadata, and is recommended
+for quantitative work.
+
 Installation
 ------------
 #. `Download a release <https://github.com/omsai/iQ-FRAPPA-plugin/tags>`_
