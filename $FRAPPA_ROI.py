@@ -47,6 +47,8 @@ for roi in im.targeted_ROIs():
                                          outline=line_width)
     # Convert mask to numpy array
     mask_2d = array(pil_im, dtype=bool)
+    # PIL x,y coordinates are transposed from iQ's
+    mask_2d = mask_2d.transpose()
     # Get dimensions except x and y, so that x and y can be overwritten
     dimensions = len(im.shape[:-2])
     # Create index defaulting to zero
