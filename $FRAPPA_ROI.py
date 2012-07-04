@@ -32,7 +32,7 @@ im = iQImage(id, 'frap2.tif') # FIXME: Use GUI to allow user to choose image
 # Make a copy of that image
 new_title = im.title + title_postfix
 if id.has_image(new_title): del id[new_title]
-im2 = im.duplicate(new_title)
+im2 = im[:]
 
 # Generate ROI masks using PIL Image
 mask = zeros(im.shape, dtype=bool)
@@ -57,3 +57,4 @@ for roi in im.targeted_ROIs():
     mask[index] = mask_2d
 
 im2[mask] = intensity
+im3 = id.newImage(new_title, im2, im.getDimNames())
