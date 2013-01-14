@@ -35,3 +35,6 @@ Installation
 
 #. Now when you restart / start the Python IDE you will always see this 
    program in the plugins menu.
+
+#. To test, in iQ open  a dataset from the ``data/`` folder and rename it simply to
+   ``demo_image``
