@@ -11,6 +11,8 @@ from numpy import array, zeros
 intensity = 16000
 line_width = 2
 title_postfix = '_drawEventROIs'
+demo_mode = True
+title_demo_image = 'demo_image'
 
 # iQImage.shape seems to be the only way to get image width and height
 # attributes.  Monkey patch with explicit width and height properties, inspired
@@ -27,7 +29,13 @@ iQImage.getHeight = _get_height
 # Get image from user
 from imagedisk import iQImageDisk
 id = iQImageDisk()
-im = iQImage(id, 'frap2.tif') # FIXME: Use GUI to allow user to choose image
+# FIXME: Use GUI to allow user to choose image
+if demo_mode:
+    print 'Using demo image'
+    if not id.has_image(title_demo_image):
+        raise iQImageDiskError, 'Open the demo image from ./data ' + \
+            'folder and rename it to' + title_demo_image
+    im = iQImage(id, title_demo_image)
 
 # Make a copy of that image
 new_title = im.title + title_postfix
